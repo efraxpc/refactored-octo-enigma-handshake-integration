@@ -27,10 +27,7 @@ abstract class Request
         $result = $client->request('GET',
             $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
 
-if(count(json_decode($result->getBody())->objects)>1)
-{
-    dd(json_decode($result->getBody())->objects);
-}
+
         $stockInfo = json_decode($result->getBody())->objects ?? null;
 
 

@@ -75,7 +75,7 @@
                           $this->response[$this->counter]['stock'][$info['position']]['officeId'] = $info['officeId'];
                           $this->response[$this->counter]['stock'][$info['position']]['wherehouseName'] = $info['wherehouseName'];
                       }
-                  } 
+                  }
               $this->counter++;
           }
       }
