@@ -22,15 +22,42 @@ abstract class Request
 
     public function getStockInfo($productId,Url $url, $client)
     {
-        $url->setShape('latest/item_stock_units?item__sku='.$productId);
+        $url->setShape('api/latest/item_stock_units?item__sku='.$productId);
         $url->make();
-
         $result = $client->request('GET',
             $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
 
-        $response = json_decode($result->getBody()->getContents())->objects[0];
+if(count(json_decode($result->getBody())->objects)>1)
+{
+    dd(json_decode($result->getBody())->objects);
+}
+        $stockInfo = json_decode($result->getBody())->objects ?? null;
 
+
+        foreach($stockInfo as $key => $info)
+        {
+            $wherehpuseInfo= $this->getWhereHouseInfo($url,$info, $client);
+
+            $response[] = [
+                'position' => $key,
+                'shelfQty' => $info->shelfQty,
+                'isAvailable' => $info->isAvailable,
+                'officeId' => $wherehpuseInfo->objID,
+                'wherehouseName' => $wherehpuseInfo->name,
+            ];
+        }
         return $response;
+    }
+
+    public function getWhereHouseInfo(Url $url, $stockInfo, $client)
+    {
+
+            $url->setShape(ltrim($stockInfo->warehouse, '/'));
+            $url->make();
+            $result = $client->request('GET',
+                $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
+
+            return json_decode($result->getBody());
     }
 
     /**

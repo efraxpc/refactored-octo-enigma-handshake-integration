@@ -20,8 +20,10 @@
 
           for($i=0;$i<=$qtyIterations;$i++)
           {
-                  $this->tryRequest($url,$i+1);
-
+              $this->tryRequest($url,$i+1);
+              if($i==1){
+                  return $this;
+              }
           }
           return $this;
       }
@@ -35,8 +37,7 @@
           $client = new \GuzzleHttp\Client();
           if($i >= 1)
           {
-              $url->setShape('latest/items?limit=100&offset='.$i*100);
-
+              $url->setShape('api/latest/items?limit=100&offset='.$i*100);
               $url->make();
           }
 
@@ -55,23 +56,27 @@
       public function fillResponse(Url $url,\GuzzleHttp\Client $client)
       {
           $products = $this->getInnerResponse()->objects;
-          $products_count = count($this->getInnerResponse()->objects);
 
-          $toEnd = count($products);
           foreach ($products as $key => $product)
           {
 
               $stockInfo = $this->getStockInfo($product->sku, $url, $client);
 
-              $this->response[$this->counter]['id'] = $product->objID;
-              $this->response[$this->counter]['position'] = $this->counter;
-              $this->response[$this->counter]['name'] = $product->name;
-              $this->response[$this->counter]['code'] = $product->sku;
-              $this->response[$this->counter]['qty'] = $stockInfo->shelfQty;
-              $this->response[$this->counter]['isAvailable'] = $stockInfo->isAvailable;
+                  $this->response[$this->counter]['id'] = $product->objID;
+                  $this->response[$this->counter]['position'] = $this->counter;
+                  $this->response[$this->counter]['name'] = $product->name;
+                  $this->response[$this->counter]['code'] = $product->sku;
 
+                  if( !is_null($stockInfo)) {
+                      foreach ($stockInfo as $info)
+                      {
+                          $this->response[$this->counter]['stock'][$info['position']]['qty'] = $info['shelfQty'];
+                          $this->response[$this->counter]['stock'][$info['position']]['isAvailable'] = $info['isAvailable'];
+                          $this->response[$this->counter]['stock'][$info['position']]['officeId'] = $info['officeId'];
+                          $this->response[$this->counter]['stock'][$info['position']]['wherehouseName'] = $info['wherehouseName'];
+                      }
+                  }
               $this->counter++;
-
           }
       }
   }

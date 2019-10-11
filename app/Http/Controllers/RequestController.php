@@ -19,7 +19,7 @@ class RequestController extends Controller
     {
         $url = new Url();
         $url->setBaseUrl(env('BASE_URL'));
-        $url->setShape('latest/items');
+        $url->setShape('api/latest/items');
       
         $sku = $request->code;
         if($sku)
@@ -42,7 +42,7 @@ class RequestController extends Controller
     {
         $url = new Url();
         $url->setBaseUrl(env('BASE_URL'));
-        $url->setShape('latest/items');
+        $url->setShape('api/latest/items');
       
         $fullUrl = $url->make('sku='.$sku);
         $request = new RequestProductsBySqu();

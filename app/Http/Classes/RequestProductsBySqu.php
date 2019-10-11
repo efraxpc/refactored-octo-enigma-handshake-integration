@@ -44,8 +44,17 @@ class RequestProductsBySqu extends Request implements IRequestProductsBySqu
         $response['id'] = $product->objID;
         $response['name'] = $product->name;
         $response['code'] = $product->sku;
-        $response['qty'] = $stockInfo->shelfQty;
-        $response['isAvailable'] = $stockInfo->isAvailable;
+
+        if( !is_null($stockInfo)) {
+            foreach ($stockInfo as $key => $info)
+            {
+                $response['stock'][$key]['qty'] = $info['shelfQty'];
+                $response['stock'][$key]['isAvailable'] = $info['isAvailable'];
+                $response['stock'][$key]['officeId'] = $info['officeId'];
+                $response['stock'][$key]['wherehouseName'] = $info['wherehouseName'];
+            }
+        }
+
         $this->setResponse($response);
     }
 }
