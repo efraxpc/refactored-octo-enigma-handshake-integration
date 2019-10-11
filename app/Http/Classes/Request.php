@@ -20,6 +20,12 @@ abstract class Request
 
     }
 
+    /**
+     * @param $productId
+     * @param Url $url
+     * @param $client
+     * @return array
+     */
     public function getStockInfo($productId,Url $url, $client)
     {
         $url->setShape('api/latest/item_stock_units?item__sku='.$productId);
@@ -46,6 +52,12 @@ abstract class Request
         return $response;
     }
 
+    /**
+     * @param Url $url
+     * @param $stockInfo
+     * @param $client
+     * @return mixed
+     */
     public function getWhereHouseInfo(Url $url, $stockInfo, $client)
     {
 
