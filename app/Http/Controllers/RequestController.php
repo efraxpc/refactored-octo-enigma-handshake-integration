@@ -10,17 +10,6 @@ use App\Http\Classes\Url;
 
 class RequestController extends Controller
 {
-    private $url;
-
-    /**
-     * RequestController constructor.
-     */
-    public function __construct()
-    {
-        $this->url = new Url();
-        $this->url->setBaseUrl(env('BASE_URL'));
-        $this->url->setShape('latest/items');
-    }
 
     /**
      * @param Request $request
@@ -28,12 +17,16 @@ class RequestController extends Controller
      */
     public function getAll(Request $request)
     {
+        $url = new Url();
+        $url->setBaseUrl(env('BASE_URL'));
+        $url->setShape('latest/items');
+      
         $sku = $request->code;
         if($sku)
         {
             return $this->getBySku($sku);
         }
-        $fullUrl = $this->url->make();
+        $fullUrl = $url->make();
         $request = new RequestAllProducts();
 
         $product_info = new ProductInfo($fullUrl,$request);
@@ -47,7 +40,11 @@ class RequestController extends Controller
      */
     public function getBySku($sku)
     {
-        $fullUrl = $this->url->make('sku='.$sku);
+        $url = new Url();
+        $url->setBaseUrl(env('BASE_URL'));
+        $url->setShape('latest/items');
+      
+        $fullUrl = $url->make('sku='.$sku);
         $request = new RequestProductsBySqu();
         $product_info = new ProductInfo($fullUrl,$request);
 
