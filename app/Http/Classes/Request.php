@@ -26,20 +26,23 @@ abstract class Request
      * @param $client
      * @return array
      */
-    public function getStockInfo($productId,Url $url, $client)
+    public function getStockInfo($productId, Url $url, $client)
     {
-        $url->setShape('api/latest/item_stock_units?item__sku='.$productId);
+        $url->setShape('api/latest/item_stock_units?item__sku=' . $productId);
         $url->make();
-        $result = $client->request('GET',
-            $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
-
+        try {
+            $result = $client->request('GET',
+                $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
+        } catch (Exception $e) {
+            $error = 'Caught exception: ' . $e->getMessage() . "\n";
+            throw new Exception($error);
+        }
 
         $stockInfo = json_decode($result->getBody())->objects ?? null;
 
-
-        foreach($stockInfo as $key => $info)
-        {
-            $wherehpuseInfo= $this->getWhereHouseInfo($url,$info, $client);
+        $response = [];
+        foreach ($stockInfo as $key => $info) {
+            $wherehpuseInfo = $this->getWhereHouseInfo($url, $info, $client);
 
             $response[] = [
                 'position' => $key,
@@ -61,12 +64,18 @@ abstract class Request
     public function getWhereHouseInfo(Url $url, $stockInfo, $client)
     {
 
-            $url->setShape(ltrim($stockInfo->warehouse, '/'));
-            $url->make();
+        $url->setShape(ltrim($stockInfo->warehouse, '/'));
+        $url->make();
+
+        try {
             $result = $client->request('GET',
                 $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
+        } catch (Exception $e) {
+            $error = 'Caught exception: ' . $e->getMessage() . "\n";
+            throw new Exception($error);
+        }
 
-            return json_decode($result->getBody());
+        return json_decode($result->getBody());
     }
 
     /**
@@ -116,6 +125,7 @@ abstract class Request
     {
         $this->countRequests = $countRequests;
     }
+
     private $countRequestsRemain;
 
     /**

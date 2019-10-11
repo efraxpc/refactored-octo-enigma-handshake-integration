@@ -25,8 +25,14 @@ class RequestProductsBySqu extends Request implements IRequestProductsBySqu
     public function tryRequest(Url $url)
     {
         $client = new \GuzzleHttp\Client();
-        $response = $client->request('GET',
-            $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
+
+        try {
+            $response = $client->request('GET',
+                $url->getUrl(), ['auth' => [env('HANDSHAKE_USER'), env('HANDSHAKE_PASSWORD')]]);
+        } catch (Exception $e) {
+            $error = 'Caught exception: ' . $e->getMessage() . "\n";
+            throw new Exception($error);
+        }
 
         $this->setInnerResponse(json_decode($response->getBody()->getContents()));
         $this->fillResponse($url, $client);
@@ -45,9 +51,8 @@ class RequestProductsBySqu extends Request implements IRequestProductsBySqu
         $response['name'] = $product->name;
         $response['code'] = $product->sku;
 
-        if( !is_null($stockInfo)) {
-            foreach ($stockInfo as $key => $info)
-            {
+        if (!is_null($stockInfo)) {
+            foreach ($stockInfo as $key => $info) {
                 $response['stock'][$key]['qty'] = $info['shelfQty'];
                 $response['stock'][$key]['isAvailable'] = $info['isAvailable'];
                 $response['stock'][$key]['officeId'] = $info['officeId'];
