@@ -21,9 +21,6 @@
           for($i=0;$i<=$qtyIterations;$i++)
           {
               $this->tryRequest($url,$i+1);
-              if($i==1){
-                  return $this;
-              }
           }
           return $this;
       }
